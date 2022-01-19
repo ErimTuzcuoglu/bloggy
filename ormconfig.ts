@@ -1,12 +1,6 @@
-import { ConfigModule } from '@nestjs/config';
-import { setEnvironment } from '@infrastructure/environments/helper';
+import EnvironmentConfig from '@infrastructure/environments/EnvironmentConfig';
 import dbConfiguration from '@persistence/database/db.config';
 
-ConfigModule.forRoot({
-  isGlobal: true,
-  expandVariables: true,
-  envFilePath: setEnvironment(),
-  load: [dbConfiguration]
-});
+EnvironmentConfig.Configure();
 
 export default dbConfiguration();

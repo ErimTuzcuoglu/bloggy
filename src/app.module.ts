@@ -1,23 +1,11 @@
 /* #region  Global Imports */
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 /* #endregion */
-import { setEnvironment } from '@infrastructure/environments/helper';
+import EnvironmentConfig from '@infrastructure/environments/EnvironmentConfig';
 import { PostModule, UserModule } from '@infrastructure/ioc';
-import NestDBConfig from '@persistence/database/nest.db.config';
-import dbConfig from '@persistence/database/db.config';
+import NestDBConfig from '@persistence/database/NestDBConfig';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      expandVariables: true,
-      envFilePath: setEnvironment(),
-      load: [dbConfig]
-    }),
-    NestDBConfig(),
-    PostModule,
-    UserModule
-  ]
+  imports: [EnvironmentConfig.Configure(), NestDBConfig.Configure(), PostModule, UserModule]
 })
 export class AppModule {}
