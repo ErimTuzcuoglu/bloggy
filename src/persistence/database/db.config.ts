@@ -6,6 +6,7 @@ const path = require('path');
 export default registerAs('database', () => {
   const { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } = process.env;
   const migrationsDir = path.join(__dirname, '../migrations');
+  const entitiesDir = path.join(`${__dirname}/../../domain/entities/*{.ts,.js}`);
 
   return {
     type: 'postgres',
@@ -13,10 +14,10 @@ export default registerAs('database', () => {
     port: parseInt(DB_PORT) || 5432,
     username: DB_USERNAME,
     password: DB_PASSWORD,
-    entities: [path.join(`${__dirname}../../domain/entities/*.{ts,js}`)],
+    entities: [entitiesDir],
     synchronize: false,
     migrationsRun: false,
-    migrations: [`${migrationsDir}/*.{ts,js}`],
+    migrations: [`${migrationsDir}/*{.ts,.js}`],
     cli: {
       migrationsDir: migrationsDir
     },

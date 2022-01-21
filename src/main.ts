@@ -4,10 +4,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 /* #endregion */
 import { Environments } from '@domain/enum';
 import { AppModule } from './app.module';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.use(helmet());
   /* #region  Swagger Module */
   if (process.env.NODE_ENV === Environments.development) {
     const config = new DocumentBuilder()
