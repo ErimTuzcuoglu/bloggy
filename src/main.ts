@@ -1,19 +1,25 @@
 /* #region  Global Imports */
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 /* #endregion */
 import { Environments } from '@domain/enum';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
+import { GlobalExceptionFilter } from '@infrastructure/middleware/GlobalExceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  /* #region  Global Exception Middleware */
+  const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new GlobalExceptionFilter(httpAdapter));
+  /* #endregion */
   app.use(helmet());
   /* #region  Swagger Module */
   if (process.env.NODE_ENV === Environments.development) {
     const config = new DocumentBuilder()
       .setTitle('Bloggy Doc')
-      .setDescription('Sample blog api description')
+      .setDescription('Bloggy api description')
       .setVersion('1.0')
       // .addTag('cats')
       .build();

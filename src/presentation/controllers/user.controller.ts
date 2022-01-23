@@ -1,7 +1,25 @@
-import { Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetUsersQuery } from '@application/features/user/queries/GetUsersQuery';
+import {
+  AddUserRequestViewModel,
+  GetUserResponseViewModel,
+  LoginUserRequestViewModel,
+  LoginUserResponseViewModel,
+  RefreshTokenUserRequestViewModel,
+  UpdateUserRequestViewModel
+} from '@presentation/view-models';
+import { GetUserQuery } from '@application/features/user/queries/GetUserQuery';
+import {
+  AddUserCommand,
+  DeleteUserCommand,
+  LoginUserCommand,
+  LogoutUserCommand,
+  RefreshTokenUserCommand,
+  UpdateUserCommand
+} from '@application/features';
+import ApiResponse from '@domain/common/ApiResponse';
 
 @ApiTags('User')
 @Controller('User')
@@ -10,41 +28,63 @@ export class UserController {
 
   @Get()
   async getUsers(): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+    const data = await this.queryBus.execute(new GetUsersQuery());
+    //TODO: Mapping will add
+    return data;
   }
 
   @Get(':id')
-  async getUser(@Param('id') id: string): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+  async getUser(@Param('id') id: string): Promise<ApiResponse<GetUserResponseViewModel>> {
+    const data = await this.queryBus.execute(new GetUserQuery(id));
+    //TODO: Mapping will add
+    return new ApiResponse(data);
   }
 
   @Post('login')
-  async login(): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+  async login(
+    @Body() loginRequestViewModel: LoginUserRequestViewModel
+  ): Promise<ApiResponse<LoginUserResponseViewModel>> {
+    const data = await this.queryBus.execute(
+      new LoginUserCommand(loginRequestViewModel.email, loginRequestViewModel.password)
+    );
+    //TODO: Mapping will add
+    return new ApiResponse(data);
   }
 
-  @Post('logout')
-  async logout(): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+  @Post('logout/:id')
+  async logout(@Param('id') id: string): Promise<string> {
+    return await this.queryBus.execute(new LogoutUserCommand());
   }
 
   @Post('refreshToken')
-  async refreshToken(): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+  async refreshToken(
+    @Body() refreshTokenRequestModel: RefreshTokenUserRequestViewModel
+  ): Promise<string> {
+    return await this.queryBus.execute(new RefreshTokenUserCommand());
   }
 
   @Put()
-  async updateUser(): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+  async updateUser(@Body() userRequestViewModel: UpdateUserRequestViewModel): Promise<string> {
+    return await this.queryBus.execute(new UpdateUserCommand());
   }
 
   @Post()
-  async addUser(): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+  async addUser(
+    @Body() userRequestViewModel: AddUserRequestViewModel
+  ): Promise<ApiResponse<LoginUserResponseViewModel>> {
+    const data = await this.queryBus.execute(
+      new AddUserCommand(
+        userRequestViewModel.name,
+        userRequestViewModel.email,
+        userRequestViewModel.password
+      )
+    );
+    //TODO: Mapping will add
+    return new ApiResponse(data);
   }
 
-  @Delete()
-  async deleteUser(): Promise<string> {
-    return await this.queryBus.execute(new GetUsersQuery());
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string): Promise<string> {
+    return await this.queryBus.execute(new DeleteUserCommand());
   }
 }

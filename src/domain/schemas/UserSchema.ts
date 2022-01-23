@@ -5,13 +5,27 @@ import { PostSchema } from '@domain/schemas';
 export class UserSchema extends BaseSchema implements IEntity {
   name: string;
   email: string;
+  hashedPassword: string;
+  salt: string;
+  refreshToken: string;
   posts?: Array<PostSchema>;
 
-  constructor(id: string, name: string, email: string, posts?: Array<PostSchema>) {
+  constructor(
+    id: string,
+    name: string,
+    email: string,
+    hashedPassword: string,
+    salt: string,
+    refreshToken: string,
+    posts?: Array<PostSchema>
+  ) {
     super();
     this.id = id;
     this.name = name;
     this.email = email;
+    this.hashedPassword = hashedPassword;
+    this.salt = salt;
+    this.refreshToken = refreshToken;
     this.posts = posts;
   }
 

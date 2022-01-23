@@ -22,7 +22,7 @@
       "protocol": "inspector",
       // "program": "${workspaceFolder}/src/app.controller.spec.ts",
       // "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+      // "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     }
   ]
 }

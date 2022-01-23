@@ -2,9 +2,9 @@ import { EntitySchemaColumnOptions } from 'typeorm';
 
 export const BaseEntity = {
   id: {
-    type: String,
-    primary: true,
-    nullable: false
+    generated: 'uuid',
+    type: 'uuid',
+    primary: true
   } as EntitySchemaColumnOptions,
   createdAt: {
     name: 'createdAt',

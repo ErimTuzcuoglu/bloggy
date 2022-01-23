@@ -13,6 +13,15 @@ export const User = new EntitySchema<UserSchema>({
     },
     name: {
       type: String
+    },
+    hashedPassword: {
+      type: String
+    },
+    salt: {
+      type: String
+    },
+    refreshToken: {
+      type: String
     }
   },
   relations: {
