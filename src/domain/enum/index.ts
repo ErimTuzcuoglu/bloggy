@@ -1,3 +1,2 @@
-import { Environments } from './Environments';
-
-export { Environments };
+export * from './Environments';
+export * from './ErrorMessages';

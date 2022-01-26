@@ -1,4 +1,4 @@
-export const enum Environments {
+export enum Environments {
   development = 'development',
   production = 'production'
 }

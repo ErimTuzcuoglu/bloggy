@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import crypto from 'crypto';
 import { UserSchema } from '@domain/schemas';
-import JWTHandler from '@infrastructure/handler/JWTHandler';
 import { LoginUserResponseViewModel } from '@presentation/view-models';
+import { ErrorMessages } from '@domain/enum';
+import { AuthService } from '@application/services';
 
 export class AddUserCommand {
   constructor(
@@ -18,12 +19,13 @@ export class AddUserCommand {
 export class AddUserHandler implements IQueryHandler<AddUserCommand> {
   constructor(
     @InjectRepository(UserSchema)
-    private usersRepository: Repository<UserSchema>
+    private usersRepository: Repository<UserSchema>,
+    private authService: AuthService
   ) {}
 
   async execute(command: AddUserCommand): Promise<LoginUserResponseViewModel> {
     const userInDB = await this.usersRepository.find({ where: { email: command.email } });
-    if (userInDB !== undefined) throw new Error('User already exist!');
+    if (userInDB !== undefined) throw new Error(ErrorMessages.UserAlreadyExist);
 
     const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = crypto
@@ -38,14 +40,11 @@ export class AddUserHandler implements IQueryHandler<AddUserCommand> {
       refreshToken: ''
     });
 
-    const accessToken = JWTHandler.generateToken(
-      { id: user.id, email: user.email },
-      process.env.JWT_ACCESS_TOKEN_SECRET
-    );
+    const accessToken = await this.authService.generateToken({ id: user.id, email: user.email });
 
-    const refreshToken = JWTHandler.generateToken(
+    const refreshToken = await this.authService.generateToken(
       { id: user.id, email: user.email },
-      process.env.JWT_REFRESH_TOKEN_SECRET
+      { secret: process.env.JWT_REFRESH_TOKEN_SECRET }
     );
 
     this.usersRepository.save({

@@ -11,10 +11,11 @@ import {
   GetUsersHandler,
   LoginUserHandler
 } from '@application/features';
+import { AuthModule } from './auth.module';
 
 @Module({
   controllers: [UserController],
-  imports: [TypeOrmModule.forFeature([UserSchema]), CqrsModule],
+  imports: [TypeOrmModule.forFeature([UserSchema]), CqrsModule, AuthModule],
   providers: [GetUserHandler, GetUsersHandler, AddUserHandler, LoginUserHandler]
 })
 export class UserModule {}

@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import crypto from 'crypto';
 import { UserSchema } from '@domain/schemas';
-import JWTHandler from '@infrastructure/handler/JWTHandler';
 import { LoginUserResponseViewModel } from '@presentation/view-models';
+import { ErrorMessages } from '@domain/enum';
+import { AuthService } from '@application/services';
 
 export class LoginUserCommand {
   constructor(public readonly email: string, public readonly password: string) {}
@@ -14,26 +15,24 @@ export class LoginUserCommand {
 export class LoginUserHandler implements IQueryHandler<LoginUserCommand> {
   constructor(
     @InjectRepository(UserSchema)
-    private usersRepository: Repository<UserSchema>
+    private usersRepository: Repository<UserSchema>,
+    private authService: AuthService
   ) {}
 
   async execute(command: LoginUserCommand): Promise<LoginUserResponseViewModel> {
     const user = await this.usersRepository.findOne({ where: { email: command.email } });
-    if (user === undefined) throw new Error('User could not found');
+    if (user === undefined) throw new Error(ErrorMessages.UserCouldNotFound);
 
     const hashedPassword = crypto
       .pbkdf2Sync(command.password, user.salt, 1000, 64, `sha512`)
       .toString(`hex`);
-    if (hashedPassword !== user.hashedPassword) throw new Error('Your password is wrong');
+    if (hashedPassword !== user.hashedPassword) throw new Error(ErrorMessages.YourPasswordIsWrong);
 
-    const accessToken = JWTHandler.generateToken(
-      { id: user.id, email: user.email },
-      process.env.JWT_ACCESS_TOKEN_SECRET
-    );
+    const accessToken = await this.authService.generateToken({ id: user.id, email: user.email });
 
-    const refreshToken = JWTHandler.generateToken(
+    const refreshToken = await this.authService.generateToken(
       { id: user.id, email: user.email },
-      process.env.JWT_REFRESH_TOKEN_SECRET
+      { secret: process.env.JWT_REFRESH_TOKEN_SECRET }
     );
 
     this.usersRepository.save({

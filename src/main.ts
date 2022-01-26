@@ -21,6 +21,14 @@ async function bootstrap() {
       .setTitle('Bloggy Doc')
       .setDescription('Bloggy api description')
       .setVersion('1.0')
+      .addSecurity('jwt', {
+        description: `Please enter token in following format: Bearer -JWT-`,
+        name: 'Authorization',
+        bearerFormat: 'Bearer',
+        scheme: 'Bearer',
+        type: 'http',
+        in: 'Header'
+      })
       // .addTag('cats')
       .build();
     const document = SwaggerModule.createDocument(app, config);
