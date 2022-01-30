@@ -11,7 +11,7 @@ import {
   GetUsersHandler,
   LoginUserHandler
 } from '@application/features';
-import { AuthModule } from './auth.module';
+import { AuthModule } from './application/auth.module';
 
 @Module({
   controllers: [UserController],
