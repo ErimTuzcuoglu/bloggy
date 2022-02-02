@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import crypto from 'crypto';
 import { UserSchema } from '@domain/schemas';
 import { LoginUserResponseViewModel } from '@presentation/view-models';
-import { ErrorMessages } from '@domain/enum';
+import { EnvironmentVariables, ErrorMessages } from '@domain/enum';
 import { AuthService } from '@application/services';
 
 export class LoginUserCommand {
@@ -32,7 +32,7 @@ export class LoginUserHandler implements IQueryHandler<LoginUserCommand> {
 
     const refreshToken = await this.authService.generateToken(
       { id: user.id, email: user.email },
-      { secret: process.env.JWT_REFRESH_TOKEN_SECRET }
+      { secret: process.env[EnvironmentVariables.JWT_REFRESH_TOKEN_SECRET] }
     );
 
     this.usersRepository.save({

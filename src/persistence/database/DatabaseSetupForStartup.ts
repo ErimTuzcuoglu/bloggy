@@ -2,7 +2,6 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { createConnection, getManager } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { Seeder } from '@persistence/database/Seeder';
 import { ErrorMessages } from '@domain/enum';
 
 const DatabaseSetupForStartup = async (configService: ConfigService): Promise<void> => {
@@ -30,9 +29,6 @@ const DatabaseSetupForStartup = async (configService: ConfigService): Promise<vo
   if (result.length === 0) await connection.runMigrations();
 
   await connection.close();
-
-  const seeder = new Seeder(configService);
-  seeder.seedAll();
 };
 
 export default DatabaseSetupForStartup;

@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { UserSchema } from '@domain/schemas';
+import { EnvironmentVariables } from '@domain/enum';
 
 export class Seeder {
   constructor(private readonly configService: ConfigService) {}
@@ -41,12 +42,18 @@ export class Seeder {
 
     const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = crypto
-      .pbkdf2Sync(this.configService.get('SEED_USER_PASSWORD'), salt, 1000, 64, `sha512`)
+      .pbkdf2Sync(
+        this.configService.get(EnvironmentVariables.SEED_USER_PASSWORD),
+        salt,
+        1000,
+        64,
+        `sha512`
+      )
       .toString(`hex`);
 
     const user = userRepository.save({
-      email: this.configService.get('SEED_USER_MAIL'),
-      name: this.configService.get('SEED_USER_NAME'),
+      email: this.configService.get(EnvironmentVariables.SEED_USER_MAIL),
+      name: this.configService.get(EnvironmentVariables.SEED_USER_NAME),
       salt,
       hashedPassword,
       refreshToken: ''

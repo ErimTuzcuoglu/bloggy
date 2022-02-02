@@ -13,6 +13,8 @@ export class LogoutUserHandler implements IQueryHandler<LogoutUserCommand> {
   ) {}
 
   async execute(): Promise<Array<UserSchema>> {
-    return this.usersRepository.find();
+    return this.usersRepository.find({
+      // where: { email: command.email }
+    });
   }
 }

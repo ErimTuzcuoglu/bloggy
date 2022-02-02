@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetUsersQuery } from '@application/features/user/queries/GetUsersQuery';
@@ -21,13 +21,15 @@ import {
 } from '@application/features';
 import ApiResponse from '@domain/common/ApiResponse';
 import { JWTAuthGuard } from '@infrastructure/security/guard/JWTAuthGuard';
+import { Request } from 'express';
+import { AllowUnauthorizedRequest } from '@presentation/common';
 
 @ApiTags('User')
 @Controller('User')
+@UseGuards(JWTAuthGuard)
 export class UserController {
   constructor(private readonly queryBus: QueryBus) {}
 
-  @UseGuards(JWTAuthGuard)
   @ApiBearerAuth('jwt')
   @Get()
   async getUsers(): Promise<string> {
@@ -36,7 +38,6 @@ export class UserController {
     return data;
   }
 
-  @UseGuards(JWTAuthGuard)
   @ApiBearerAuth('jwt')
   @Get(':id')
   async getUser(@Param('id') id: string): Promise<ApiResponse<GetUserResponseViewModel>> {
@@ -46,6 +47,7 @@ export class UserController {
   }
 
   @Post('login')
+  @AllowUnauthorizedRequest()
   async login(
     @Body() loginRequestViewModel: LoginUserRequestViewModel
   ): Promise<ApiResponse<LoginUserResponseViewModel>> {
@@ -56,14 +58,12 @@ export class UserController {
     return new ApiResponse(data);
   }
 
-  @UseGuards(JWTAuthGuard)
   @ApiBearerAuth('jwt')
   @Post('logout/:id')
-  async logout(@Param('id') id: string): Promise<string> {
+  async logout(@Req() request: Request): Promise<string> {
     return await this.queryBus.execute(new LogoutUserCommand());
   }
 
-  @UseGuards(JWTAuthGuard)
   @ApiBearerAuth('jwt')
   @Post('refreshToken')
   async refreshToken(
@@ -72,13 +72,13 @@ export class UserController {
     return await this.queryBus.execute(new RefreshTokenUserCommand());
   }
 
-  @UseGuards(JWTAuthGuard)
   @ApiBearerAuth('jwt')
   @Put()
   async updateUser(@Body() userRequestViewModel: UpdateUserRequestViewModel): Promise<string> {
     return await this.queryBus.execute(new UpdateUserCommand());
   }
 
+  @ApiBearerAuth('jwt')
   @Post()
   async addUser(
     @Body() userRequestViewModel: AddUserRequestViewModel
@@ -94,7 +94,6 @@ export class UserController {
     return new ApiResponse(data);
   }
 
-  @UseGuards(JWTAuthGuard)
   @ApiBearerAuth('jwt')
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<string> {

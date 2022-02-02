@@ -1,4 +1,5 @@
 import ApiResponse from '@domain/common/ApiResponse';
+import { AuthorizeException } from '@domain/exceptions';
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 
@@ -13,8 +14,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const ctx = host.switchToHttp();
 
-    const httpStatus =
-      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    let httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    if (exception instanceof HttpException) httpStatus = exception.getStatus();
+    if (exception instanceof AuthorizeException) httpStatus = HttpStatus.UNAUTHORIZED;
 
     const responseBody: ApiResponse<Record<string, unknown>> = {
       data: null,

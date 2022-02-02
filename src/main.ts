@@ -2,7 +2,7 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 /* #endregion */
-import { Environments } from '@domain/enum';
+import { Environments, EnvironmentVariables } from '@domain/enum';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { GlobalExceptionFilter } from '@infrastructure/middleware/GlobalExceptionFilter';
@@ -37,6 +37,6 @@ async function bootstrap() {
   }
   /* #endregion */
 
-  await app.listen(process.env.APP_PORT || 3000);
+  await app.listen(process.env[EnvironmentVariables.APP_PORT] || 3000);
 }
 bootstrap();

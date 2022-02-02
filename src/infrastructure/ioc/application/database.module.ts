@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserSchema } from '@domain/schemas';
 import DatabaseSetupForStartup from '@persistence/database/DatabaseSetupForStartup';
+import { Seeder } from '@persistence/database/Seeder';
 
 @Module({
   imports: [
@@ -11,6 +12,10 @@ import DatabaseSetupForStartup from '@persistence/database/DatabaseSetupForStart
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         await DatabaseSetupForStartup(configService);
+
+        const seeder = new Seeder(configService);
+        await seeder.seedAll();
+
         return { ...(await configService.get('database')) };
       }
     })
