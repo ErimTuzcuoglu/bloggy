@@ -3,8 +3,12 @@ export * from './user/request/AddUserRequestViewModel';
 export * from './user/request/LoginUserRequestViewModel';
 export * from './user/request/RefreshTokenUserRequestViewModel';
 export * from './user/request/UpdateUserRequestViewModel';
+export * from './user/response/AddUserResponseViewModel';
 export * from './user/response/GetUserResponseViewModel';
 export * from './user/response/LoginUserResponseViewModel';
+export * from './user/response/RefreshTokenUserResponseViewModel';
+export * from './user/response/UpdateUserResponseViewModel';
+export * from './user/response/DeleteUserResponseViewModel';
 /* #endregion */
 
 /* #region  Post View Model Exports */

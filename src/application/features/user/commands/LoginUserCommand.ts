@@ -1,4 +1,4 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import crypto from 'crypto';
@@ -11,8 +11,8 @@ export class LoginUserCommand {
   constructor(public readonly email: string, public readonly password: string) {}
 }
 
-@QueryHandler(LoginUserCommand)
-export class LoginUserHandler implements IQueryHandler<LoginUserCommand> {
+@CommandHandler(LoginUserCommand)
+export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   constructor(
     @InjectRepository(UserSchema)
     private usersRepository: Repository<UserSchema>,

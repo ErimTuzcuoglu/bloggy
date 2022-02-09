@@ -1,14 +1,17 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { QueryBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetUsersQuery } from '@application/features/user/queries/GetUsersQuery';
 import {
   AddUserRequestViewModel,
   GetUserResponseViewModel,
   LoginUserRequestViewModel,
   LoginUserResponseViewModel,
+  RefreshTokenUserResponseViewModel,
   RefreshTokenUserRequestViewModel,
-  UpdateUserRequestViewModel
+  UpdateUserRequestViewModel,
+  UpdateUserResponseViewModel,
+  DeleteUserResponseViewModel
 } from '@presentation/view-models';
 import { GetUserQuery } from '@application/features/user/queries/GetUserQuery';
 import {
@@ -22,28 +25,35 @@ import {
 import ApiResponse from '@domain/common/ApiResponse';
 import { JWTAuthGuard } from '@infrastructure/security/guard/JWTAuthGuard';
 import { Request } from 'express';
-import { AllowUnauthorizedRequest } from '@presentation/common';
+import { AllowUnauthorizedRequest, BaseController } from '@presentation/common';
+import { AuthService } from '@application/services';
 
 @ApiTags('User')
 @Controller('User')
 @UseGuards(JWTAuthGuard)
-export class UserController {
-  constructor(private readonly queryBus: QueryBus) {}
+export class UserController extends BaseController {
+  constructor(
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+    private authService: AuthService
+  ) {
+    super(authService);
+  }
 
   @ApiBearerAuth('jwt')
   @Get()
-  async getUsers(): Promise<string> {
-    const data = await this.queryBus.execute(new GetUsersQuery());
+  async getUsers(): Promise<ApiResponse<Array<GetUserResponseViewModel>>> {
+    const responseData = await this.queryBus.execute(new GetUsersQuery());
     //TODO: Mapping will add
-    return data;
+    return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
   @Get(':id')
   async getUser(@Param('id') id: string): Promise<ApiResponse<GetUserResponseViewModel>> {
-    const data = await this.queryBus.execute(new GetUserQuery(id));
+    const responseData = await this.queryBus.execute(new GetUserQuery(id));
     //TODO: Mapping will add
-    return new ApiResponse(data);
+    return this.responseView(responseData);
   }
 
   @Post('login')
@@ -51,31 +61,50 @@ export class UserController {
   async login(
     @Body() loginRequestViewModel: LoginUserRequestViewModel
   ): Promise<ApiResponse<LoginUserResponseViewModel>> {
-    const data = await this.queryBus.execute(
+    const responseData = await this.commandBus.execute(
       new LoginUserCommand(loginRequestViewModel.email, loginRequestViewModel.password)
     );
     //TODO: Mapping will add
-    return new ApiResponse(data);
+    return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
-  @Post('logout/:id')
-  async logout(@Req() request: Request): Promise<string> {
-    return await this.queryBus.execute(new LogoutUserCommand());
+  @Post('logout')
+  async logout(@Req() request: Request): Promise<ApiResponse<string>> {
+    const responseData = await this.commandBus.execute(
+      new LogoutUserCommand(this.getUserId(request))
+    );
+    //TODO: Mapping
+    return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
   @Post('refreshToken')
   async refreshToken(
     @Body() refreshTokenRequestModel: RefreshTokenUserRequestViewModel
-  ): Promise<string> {
-    return await this.queryBus.execute(new RefreshTokenUserCommand());
+  ): Promise<ApiResponse<RefreshTokenUserResponseViewModel>> {
+    const responseData: RefreshTokenUserResponseViewModel = await this.commandBus.execute(
+      new RefreshTokenUserCommand(
+        refreshTokenRequestModel.accessToken,
+        refreshTokenRequestModel.refreshToken
+      )
+    );
+    //TODO: Mapping will add
+    return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
   @Put()
-  async updateUser(@Body() userRequestViewModel: UpdateUserRequestViewModel): Promise<string> {
-    return await this.queryBus.execute(new UpdateUserCommand());
+  async updateUser(
+    @Req() request: Request,
+    @Body() userRequestViewModel: UpdateUserRequestViewModel
+  ): Promise<ApiResponse<UpdateUserResponseViewModel>> {
+    const { email, password, name } = userRequestViewModel;
+    const responseData: UpdateUserResponseViewModel = await this.commandBus.execute(
+      new UpdateUserCommand({ name, email, password, id: this.getUserId(request) })
+    );
+    //TODO: Mapping
+    return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
@@ -83,7 +112,7 @@ export class UserController {
   async addUser(
     @Body() userRequestViewModel: AddUserRequestViewModel
   ): Promise<ApiResponse<LoginUserResponseViewModel>> {
-    const data = await this.queryBus.execute(
+    const responseData = await this.commandBus.execute(
       new AddUserCommand(
         userRequestViewModel.name,
         userRequestViewModel.email,
@@ -91,12 +120,14 @@ export class UserController {
       )
     );
     //TODO: Mapping will add
-    return new ApiResponse(data);
+    return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
   @Delete(':id')
-  async deleteUser(@Param('id') id: string): Promise<string> {
-    return await this.queryBus.execute(new DeleteUserCommand());
+  async deleteUser(@Param('id') id: string): Promise<ApiResponse<DeleteUserResponseViewModel>> {
+    const responseData = await this.commandBus.execute(new DeleteUserCommand(id));
+    //TODO: Mapping will add
+    return this.responseView(responseData);
   }
 }

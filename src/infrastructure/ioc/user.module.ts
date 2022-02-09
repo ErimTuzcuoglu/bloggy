@@ -7,15 +7,28 @@ import { UserController } from '@presentation/controllers/user.controller';
 import { UserSchema } from '@domain/schemas';
 import {
   AddUserHandler,
+  DeleteUserHandler,
   GetUserHandler,
   GetUsersHandler,
-  LoginUserHandler
+  LoginUserHandler,
+  LogoutUserHandler,
+  RefreshTokenUserHandler,
+  UpdateUserHandler
 } from '@application/features';
 import { AuthModule } from './application/auth.module';
 
 @Module({
   controllers: [UserController],
   imports: [TypeOrmModule.forFeature([UserSchema]), CqrsModule, AuthModule],
-  providers: [GetUserHandler, GetUsersHandler, AddUserHandler, LoginUserHandler]
+  providers: [
+    GetUserHandler,
+    GetUsersHandler,
+    AddUserHandler,
+    LoginUserHandler,
+    LogoutUserHandler,
+    RefreshTokenUserHandler,
+    UpdateUserHandler,
+    DeleteUserHandler
+  ]
 })
 export class UserModule {}

@@ -1,9 +1,9 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { ICommandHandler, CommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import crypto from 'crypto';
 import { UserSchema } from '@domain/schemas';
-import { LoginUserResponseViewModel } from '@presentation/view-models';
+import { AddUserResponseViewModel } from '@presentation/view-models';
 import { EnvironmentVariables, ErrorMessages } from '@domain/enum';
 import { AuthService } from '@application/services';
 
@@ -15,15 +15,15 @@ export class AddUserCommand {
   ) {}
 }
 
-@QueryHandler(AddUserCommand)
-export class AddUserHandler implements IQueryHandler<AddUserCommand> {
+@CommandHandler(AddUserCommand)
+export class AddUserHandler implements ICommandHandler<AddUserCommand> {
   constructor(
     @InjectRepository(UserSchema)
     private usersRepository: Repository<UserSchema>,
     private authService: AuthService
   ) {}
 
-  async execute(command: AddUserCommand): Promise<LoginUserResponseViewModel> {
+  async execute(command: AddUserCommand): Promise<AddUserResponseViewModel> {
     const userInDB = await this.usersRepository.find({ where: { email: command.email } });
     if (userInDB !== undefined) throw new Error(ErrorMessages.UserAlreadyExist);
 
@@ -52,7 +52,7 @@ export class AddUserHandler implements IQueryHandler<AddUserCommand> {
       refreshToken
     });
 
-    const body = new LoginUserResponseViewModel();
+    const body = new AddUserResponseViewModel();
     body.email = user.email;
     body.id = user.id;
     body.name = user.name;

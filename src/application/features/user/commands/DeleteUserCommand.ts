@@ -1,18 +1,25 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { ICommandHandler, CommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserSchema } from '@domain/schemas';
+import { DeleteUserResponseViewModel } from '@presentation/view-models';
 
-export class DeleteUserCommand {}
+export class DeleteUserCommand {
+  constructor(public readonly id: string) {}
+}
 
-@QueryHandler(DeleteUserCommand)
-export class DeleteUserHandler implements IQueryHandler<DeleteUserCommand> {
+@CommandHandler(DeleteUserCommand)
+export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
   constructor(
     @InjectRepository(UserSchema)
     private usersRepository: Repository<UserSchema>
   ) {}
+  async execute(command: DeleteUserCommand): Promise<DeleteUserResponseViewModel> {
+    const user = await this.usersRepository.delete({ id: command.id });
 
-  async execute(): Promise<Array<UserSchema>> {
-    return this.usersRepository.find();
+    const body = new DeleteUserResponseViewModel({
+      isUserDeleted: true
+    });
+    return body;
   }
 }

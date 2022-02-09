@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions, JwtVerifyOptions } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { JwtPayload } from 'jsonwebtoken';
 import { UserSchema } from '@domain/schemas';
@@ -28,16 +28,11 @@ export class AuthService {
     } catch (error) {
       let errorMessage = error.message;
       if (error.name === 'JsonWebTokenError') {
-        switch (error.message) {
-          case 'jwt expired':
-            errorMessage = ErrorMessages.TokenExpired;
-            break;
-          default:
-            // 'invalid signature', 'invalid token'
-            errorMessage = ErrorMessages.InvalidToken;
-            break;
-        }
+        errorMessage = ErrorMessages.InvalidToken;
+      } else if (error.name === 'TokenExpiredError') {
+        errorMessage = ErrorMessages.TokenExpired;
       }
+
       throw new AuthorizeException(errorMessage);
     }
 
@@ -51,7 +46,7 @@ export class AuthService {
     return this.jwtService.sign(payload, options);
   }
 
-  private verifyToken(token: string): Record<string, unknown> {
-    return this.jwtService.verify(token);
+  verifyToken(token: string, options?: JwtVerifyOptions): Record<string, unknown> {
+    return this.jwtService.verify(token, options);
   }
 }

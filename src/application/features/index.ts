@@ -1,4 +1,4 @@
-/* #region   */
+/* #region User */
 export * from './user/commands/AddUserCommand';
 export * from './user/commands/DeleteUserCommand';
 export * from './user/commands/LoginUserCommand';
