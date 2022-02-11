@@ -15,11 +15,10 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
     private usersRepository: Repository<UserSchema>
   ) {}
   async execute(command: DeleteUserCommand): Promise<DeleteUserResponseViewModel> {
-    const user = await this.usersRepository.delete({ id: command.id });
+    await this.usersRepository.delete({ id: command.id });
 
-    const body = new DeleteUserResponseViewModel({
+    return new DeleteUserResponseViewModel({
       isUserDeleted: true
     });
-    return body;
   }
 }

@@ -27,30 +27,30 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
   async execute(command: UpdateUserCommand): Promise<any> {
     const { email: newEmail, id, name, password } = command.userData;
     const userInDB = await this.usersRepository.findOne(id);
+    let updatedUser: Record<string, unknown> = { id, name: userInDB.name };
+
     if (userInDB.email !== newEmail) {
       const isEmailExists = await this.usersRepository.findOne({ where: { email: newEmail } });
       if (isEmailExists !== undefined) throw new Error(ErrorMessages.EmailAlreadyExists);
+
+      updatedUser = { ...updatedUser, email: newEmail };
     }
     if (password) {
       // eslint-disable-next-line no-var
       var salt = crypto.randomBytes(16).toString('hex');
       // eslint-disable-next-line no-var
       var hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
+      updatedUser = { ...updatedUser, salt, hashedPassword };
     }
 
-    const user = await this.usersRepository.save({
-      id: id,
-      email: newEmail,
-      name: name,
-      salt,
-      hashedPassword
+    if (!!name && userInDB.name !== name) updatedUser = { ...updatedUser, name };
+
+    const user = await this.usersRepository.save(updatedUser);
+
+    return new UpdateUserResponseViewModel({
+      email: user.email,
+      id: user.id,
+      name: user.name
     });
-
-    const body = new UpdateUserResponseViewModel();
-    body.email = user.email;
-    body.id = user.id;
-    body.name = user.name;
-
-    return body;
   }
 }

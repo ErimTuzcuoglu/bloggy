@@ -1,5 +1,4 @@
-import { plainToClass, Expose } from 'class-transformer';
-import { UserSchema } from '@domain/schemas/UserSchema';
+import { Expose } from 'class-transformer';
 
 export class GetPostResponseViewModel {
   @Expose()
@@ -10,8 +9,4 @@ export class GetPostResponseViewModel {
 
   @Expose()
   email: string;
-
-  static fromViewModel(user: GetPostResponseViewModel): UserSchema {
-    return plainToClass(UserSchema, user, { excludeExtraneousValues: true });
-  }
 }

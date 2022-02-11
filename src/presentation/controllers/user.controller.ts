@@ -43,16 +43,18 @@ export class UserController extends BaseController {
   @ApiBearerAuth('jwt')
   @Get()
   async getUsers(): Promise<ApiResponse<Array<GetUserResponseViewModel>>> {
-    const responseData = await this.queryBus.execute(new GetUsersQuery());
-    //TODO: Mapping will add
+    const responseData: GetUserResponseViewModel[] = await this.queryBus.execute(
+      new GetUsersQuery()
+    );
     return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
   @Get(':id')
   async getUser(@Param('id') id: string): Promise<ApiResponse<GetUserResponseViewModel>> {
-    const responseData = await this.queryBus.execute(new GetUserQuery(id));
-    //TODO: Mapping will add
+    const responseData: GetUserResponseViewModel = await this.queryBus.execute(
+      new GetUserQuery(id)
+    );
     return this.responseView(responseData);
   }
 
@@ -61,20 +63,18 @@ export class UserController extends BaseController {
   async login(
     @Body() loginRequestViewModel: LoginUserRequestViewModel
   ): Promise<ApiResponse<LoginUserResponseViewModel>> {
-    const responseData = await this.commandBus.execute(
+    const responseData: LoginUserResponseViewModel = await this.commandBus.execute(
       new LoginUserCommand(loginRequestViewModel.email, loginRequestViewModel.password)
     );
-    //TODO: Mapping will add
     return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
   @Post('logout')
-  async logout(@Req() request: Request): Promise<ApiResponse<string>> {
-    const responseData = await this.commandBus.execute(
+  async logout(@Req() request: Request): Promise<ApiResponse<unknown>> {
+    const responseData: unknown = await this.commandBus.execute(
       new LogoutUserCommand(this.getUserId(request))
     );
-    //TODO: Mapping
     return this.responseView(responseData);
   }
 
@@ -89,7 +89,6 @@ export class UserController extends BaseController {
         refreshTokenRequestModel.refreshToken
       )
     );
-    //TODO: Mapping will add
     return this.responseView(responseData);
   }
 
@@ -99,11 +98,10 @@ export class UserController extends BaseController {
     @Req() request: Request,
     @Body() userRequestViewModel: UpdateUserRequestViewModel
   ): Promise<ApiResponse<UpdateUserResponseViewModel>> {
-    const { email, password, name } = userRequestViewModel;
+    const { email, id, password, name } = userRequestViewModel;
     const responseData: UpdateUserResponseViewModel = await this.commandBus.execute(
-      new UpdateUserCommand({ name, email, password, id: this.getUserId(request) })
+      new UpdateUserCommand({ name, email, password, id: id ? id : this.getUserId(request) })
     );
-    //TODO: Mapping
     return this.responseView(responseData);
   }
 
@@ -112,22 +110,22 @@ export class UserController extends BaseController {
   async addUser(
     @Body() userRequestViewModel: AddUserRequestViewModel
   ): Promise<ApiResponse<LoginUserResponseViewModel>> {
-    const responseData = await this.commandBus.execute(
+    const responseData: LoginUserResponseViewModel = await this.commandBus.execute(
       new AddUserCommand(
         userRequestViewModel.name,
         userRequestViewModel.email,
         userRequestViewModel.password
       )
     );
-    //TODO: Mapping will add
     return this.responseView(responseData);
   }
 
   @ApiBearerAuth('jwt')
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<ApiResponse<DeleteUserResponseViewModel>> {
-    const responseData = await this.commandBus.execute(new DeleteUserCommand(id));
-    //TODO: Mapping will add
+    const responseData: DeleteUserResponseViewModel = await this.commandBus.execute(
+      new DeleteUserCommand(id)
+    );
     return this.responseView(responseData);
   }
 }

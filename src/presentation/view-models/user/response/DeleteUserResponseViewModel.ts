@@ -1,5 +1,5 @@
 export class DeleteUserResponseViewModel {
-  constructor(data: Partial<DeleteUserResponseViewModel>) {
+  constructor(data?: Partial<DeleteUserResponseViewModel>) {
     Object.assign(this, data);
   }
 

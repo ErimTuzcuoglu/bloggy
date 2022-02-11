@@ -1,5 +1,4 @@
-import { plainToClass, Expose } from 'class-transformer';
-import { UserSchema } from '@domain/schemas/UserSchema';
+import { Expose } from 'class-transformer';
 
 export class GetUserResponseViewModel {
   @Expose()
@@ -16,8 +15,4 @@ export class GetUserResponseViewModel {
 
   @Expose()
   updatedAt: Date;
-
-  static toViewModel(user: UserSchema): GetUserResponseViewModel {
-    return plainToClass(GetUserResponseViewModel, user, { excludeExtraneousValues: true });
-  }
 }

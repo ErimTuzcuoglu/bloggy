@@ -15,11 +15,10 @@ export class LogoutUserHandler implements ICommandHandler<LogoutUserCommand> {
   ) {}
 
   async execute(command: LogoutUserCommand): Promise<unknown> {
-    return Promise.resolve(
-      this.usersRepository.save({
-        id: command.id,
-        refreshToken: ''
-      })
-    );
+    await this.usersRepository.save({
+      id: command.id,
+      refreshToken: ''
+    });
+    return {};
   }
 }

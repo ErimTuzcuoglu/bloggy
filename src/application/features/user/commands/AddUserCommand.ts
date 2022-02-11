@@ -24,7 +24,7 @@ export class AddUserHandler implements ICommandHandler<AddUserCommand> {
   ) {}
 
   async execute(command: AddUserCommand): Promise<AddUserResponseViewModel> {
-    const userInDB = await this.usersRepository.find({ where: { email: command.email } });
+    const userInDB = await this.usersRepository.findOne({ where: { email: command.email } });
     if (userInDB !== undefined) throw new Error(ErrorMessages.UserAlreadyExist);
 
     const salt = crypto.randomBytes(16).toString('hex');
@@ -52,13 +52,12 @@ export class AddUserHandler implements ICommandHandler<AddUserCommand> {
       refreshToken
     });
 
-    const body = new AddUserResponseViewModel();
-    body.email = user.email;
-    body.id = user.id;
-    body.name = user.name;
-    body.refreshToken = refreshToken;
-    body.accessToken = accessToken;
-
-    return body;
+    return new AddUserResponseViewModel({
+      email: user.email,
+      id: user.id,
+      name: user.name,
+      refreshToken: refreshToken,
+      accessToken: accessToken
+    });
   }
 }

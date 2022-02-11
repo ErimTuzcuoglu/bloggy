@@ -1,21 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { plainToClass, Expose } from 'class-transformer';
-import { UserSchema } from '@domain/schemas/UserSchema';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateUserRequestViewModel {
-  @ApiProperty()
-  @Expose()
+  @ApiPropertyOptional()
   password?: string;
 
-  @ApiProperty()
-  @Expose()
-  name: string;
+  @ApiPropertyOptional()
+  name?: string;
 
-  @ApiProperty()
-  @Expose()
-  email: string;
+  @ApiPropertyOptional()
+  email?: string;
 
-  static fromViewModel(user: UpdateUserRequestViewModel): UserSchema {
-    return plainToClass(UserSchema, user, { excludeExtraneousValues: true });
-  }
+  @ApiPropertyOptional()
+  id?: string;
 }

@@ -16,11 +16,13 @@ import {
   UpdateUserHandler
 } from '@application/features';
 import { AuthModule } from './application/auth.module';
+import Mapper from '@infrastructure/helper/Mapper';
 
 @Module({
   controllers: [UserController],
   imports: [TypeOrmModule.forFeature([UserSchema]), CqrsModule, AuthModule],
   providers: [
+    Mapper,
     GetUserHandler,
     GetUsersHandler,
     AddUserHandler,

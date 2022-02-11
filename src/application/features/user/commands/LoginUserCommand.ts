@@ -40,13 +40,12 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
       refreshToken
     });
 
-    const body = new LoginUserResponseViewModel();
-    body.email = user.email;
-    body.id = user.id;
-    body.name = user.name;
-    body.refreshToken = refreshToken;
-    body.accessToken = accessToken;
-
-    return body;
+    return new LoginUserResponseViewModel({
+      email: user.email,
+      id: user.id,
+      name: user.name,
+      refreshToken: refreshToken,
+      accessToken: accessToken
+    });
   }
 }
