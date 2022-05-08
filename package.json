@@ -1,0 +1,14 @@
+{
+    "name": "bloggy",
+    "scripts": {
+        "start:dev": "cd ./bloggy-backend && yarn run start:dev",
+        "dev": "next dev",
+        "build": "next build",
+        "serve": "next start",
+        "dev:up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up",
+        "prod:up": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up",
+        "remove:all": "docker rmi bloggy_bloggy_backend bloggy_bloggy_frontend postgres",
+        "remove:backend": "docker stop bloggy_bloggy_backend_1 && docker rm bloggy_bloggy_backend_1 && docker rmi bloggy_bloggy_backend"
+    }
+  }
+  

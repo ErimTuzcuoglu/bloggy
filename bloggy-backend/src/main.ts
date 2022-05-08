@@ -37,6 +37,6 @@ async function bootstrap() {
   }
   /* #endregion */
 
-  await app.listen(process.env[EnvironmentVariables.APP_PORT] || 3000);
+  await app.listen(process.env[EnvironmentVariables.APP_PORT] || 5000);
 }
 bootstrap();

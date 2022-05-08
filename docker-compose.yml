@@ -1,0 +1,50 @@
+version: '3' #This denotes that we are using version 3 of Docker Compose
+services: #This section defines all the different containers we will create.
+  postgres_service:
+    container_name: postgres_container
+    image: postgres:12.9
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    # expose: # Publishes 7775 to other containers but NOT to host machine
+    #   - "7775" 
+    ports:
+      - "7775:5432"
+    networks:
+      - bloggy-network
+    restart: unless-stopped
+    # command: -p 7775
+  bloggy_backend: 
+    container_name: bloggy_backend_container
+    build: 
+      context: ./bloggy-backend
+    environment:
+      - DB_HOST=postgres_container
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=123 
+    ports: #This is used to map the container’s ports to the host machine.
+      - "5000:5000"
+    depends_on:
+      - postgres_service
+    networks:
+      - bloggy-network
+  bloggy_frontend: #This is the name of our Nextjs application.
+    container_name: bloggy_frontend_container
+    build:
+      context: ./bloggy-client
+    ports: #This is used to map the container’s ports to the host machine.
+      - "3000:3000"
+    depends_on:
+      - bloggy_backend
+    networks:
+      - bloggy-network
+networks:
+  bloggy-network:
+    driver: bridge
+
+volumes:
+    postgres:

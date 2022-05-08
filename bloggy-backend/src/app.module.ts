@@ -8,12 +8,11 @@ import {
   DatabaseModule,
   EnvironmentModule,
   PostModule,
-  SSRModule,
   UserModule
 } from '@infrastructure/ioc';
 
 @Module({
-  imports: [EnvironmentModule, DatabaseModule, SSRModule, PostModule, UserModule, AuthModule],
+  imports: [EnvironmentModule, DatabaseModule, PostModule, UserModule, AuthModule],
   providers: [
     {
       provide: APP_GUARD,

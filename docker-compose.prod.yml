@@ -1,0 +1,6 @@
+version: "3" #This denotes that we are using version 3 of Docker Compose
+services: #This section defines all the different containers we will create.
+  bloggy_backend: #This is the name of our Nextjs application.
+        command: start:prod #command to execute
+  bloggy_frontend: #This is the name of our Nextjs application.
+        command: serve #command to execute
