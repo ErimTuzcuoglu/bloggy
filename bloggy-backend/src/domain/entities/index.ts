@@ -1,4 +1,3 @@
-import { Post } from './Post';
-import { User } from './User';
-
-export { Post, User };
+export * from './Post';
+export * from './Tag';
+export * from './User';

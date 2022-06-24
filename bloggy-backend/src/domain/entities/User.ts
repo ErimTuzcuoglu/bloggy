@@ -1,4 +1,4 @@
-import { BaseEntity } from '@domain/common/BaseEntity';
+import { BaseAuditableEntity } from '@domain/common/BaseAuditableEntity';
 import { UserSchema, PostSchema } from '@domain/schemas';
 import { EntitySchema } from 'typeorm';
 
@@ -7,7 +7,7 @@ export const User = new EntitySchema<UserSchema>({
   tableName: 'user',
   target: UserSchema,
   columns: {
-    ...BaseEntity,
+    ...BaseAuditableEntity,
     email: {
       type: String
     },
@@ -34,10 +34,10 @@ export const User = new EntitySchema<UserSchema>({
   },
   relations: {
     posts: {
+      cascade: true,
       lazy: true,
       type: 'one-to-many',
-      target: () => PostSchema,
-      joinColumn: true
+      target: () => PostSchema
     }
   }
 });

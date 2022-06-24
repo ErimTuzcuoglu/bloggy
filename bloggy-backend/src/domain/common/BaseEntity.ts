@@ -10,15 +10,5 @@ export const BaseEntity = {
     name: 'createdAt',
     type: 'timestamp with time zone',
     createDate: true
-  } as EntitySchemaColumnOptions,
-  updatedAt: {
-    name: 'updatedAt',
-    type: 'timestamp with time zone',
-    updateDate: true
-  } as EntitySchemaColumnOptions,
-  isDeleted: {
-    name: 'isDeleted',
-    type: 'boolean',
-    default: false
   } as EntitySchemaColumnOptions
 };

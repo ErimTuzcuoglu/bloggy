@@ -1,4 +1,4 @@
-import ApiResponse from '@domain/common/ApiResponse';
+import { ApiResponse } from '@domain/common';
 import { AuthorizeException } from '@domain/exceptions';
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';

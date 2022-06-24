@@ -1,3 +1,4 @@
 export enum Decorator {
-  allowUnauthorizedRequest = 'allowUnauthorizedRequest'
+  allowUnauthorizedRequest = 'allowUnauthorizedRequest',
+  disableResponseWrapper = 'disableResponseWrapper'
 }

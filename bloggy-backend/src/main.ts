@@ -5,7 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Environments, EnvironmentVariables } from '@domain/enum';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
-import { GlobalExceptionFilter } from '@infrastructure/middleware/GlobalExceptionFilter';
+import { GlobalExceptionFilter } from '@infrastructure/middleware/filters/GlobalExceptionFilter';
+import { TransformInterceptor } from '@infrastructure/middleware/interceptors/TransformInterceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,6 +14,7 @@ async function bootstrap() {
   /* #region  Global Exception Middleware */
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new GlobalExceptionFilter(httpAdapter));
+  app.useGlobalInterceptors(new TransformInterceptor());
   /* #endregion */
   app.use(helmet());
   /* #region  Swagger Module */

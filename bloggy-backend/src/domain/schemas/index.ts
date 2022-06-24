@@ -1,4 +1,3 @@
-import { PostSchema } from './PostSchema';
-import { UserSchema } from './UserSchema';
-
-export { PostSchema, UserSchema };
+export * from './PostSchema';
+export * from './TagSchema';
+export * from './UserSchema';

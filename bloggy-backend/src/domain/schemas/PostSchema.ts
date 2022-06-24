@@ -1,25 +1,31 @@
-import { BaseSchema } from '@domain/common/BaseSchema';
+import { BaseAuditableSchema } from '@domain/common/BaseAuditableSchema';
 import { IEntity } from '@domain/contract/IEntity';
-import { UserSchema } from '@domain/schemas/UserSchema';
+import { TagSchema, UserSchema } from '@domain/schemas';
 
-export class PostSchema extends BaseSchema implements IEntity {
+export class PostSchema extends BaseAuditableSchema implements IEntity {
+  coverPhoto?: string;
+  post: string;
+  tags?: TagSchema[];
   title: string;
-  text: string;
   user: UserSchema;
 
   constructor(
     id: string,
     title: string,
-    text: string,
+    post: string,
     createdAt: Date,
     updatedAt: Date,
     isDeleted: boolean,
-    user: UserSchema
+    user: UserSchema,
+    coverPhoto?: string,
+    tags?: TagSchema[]
   ) {
     super();
     this.id = id;
+    this.coverPhoto = coverPhoto;
+    this.tags = tags;
     this.title = title;
-    this.text = text;
+    this.post = post;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.isDeleted = isDeleted;

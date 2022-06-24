@@ -5,8 +5,23 @@ export class GetPostResponseViewModel {
   id: string;
 
   @Expose()
-  name: string;
+  title: string;
 
   @Expose()
-  email: string;
+  post: string;
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  updatedAt: Date;
+
+  @Expose()
+  userId: string;
+
+  @Expose()
+  coverPhoto?: string;
+
+  @Expose()
+  tags?: Array<Record<string, unknown>>;
 }

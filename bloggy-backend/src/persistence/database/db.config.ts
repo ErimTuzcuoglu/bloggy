@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { EnvironmentVariables } from '@domain/enum';
+// import { ConnectionOptions } from 'typeorm';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
@@ -22,6 +23,7 @@ export default registerAs('database', () => {
     username: DB_USERNAME,
     password: DB_PASSWORD,
     entities: [entitiesDir],
+    // logging: 'all',
     synchronize: false,
     migrationsRun: false,
     migrations: [`${migrationsDir}/*{.ts,.js}`],
@@ -29,5 +31,5 @@ export default registerAs('database', () => {
       migrationsDir: migrationsDir
     },
     database: DB_NAME
-  };
+  } /*  as ConnectionOptions */;
 });

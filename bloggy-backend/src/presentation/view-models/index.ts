@@ -14,5 +14,6 @@ export * from './user/response/DeleteUserResponseViewModel';
 /* #region  Post View Model Exports */
 export * from './post/request/AddPostRequestViewModel';
 export * from './post/request/UpdatePostRequestViewModel';
+export * from './post/response/AddPostResponseViewModel';
 export * from './post/response/GetPostResponseViewModel';
 /* #endregion */

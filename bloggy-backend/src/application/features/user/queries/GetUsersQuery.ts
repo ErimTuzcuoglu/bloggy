@@ -17,16 +17,11 @@ export class GetUsersHandler implements IQueryHandler<GetUsersQuery> {
 
   async execute(): Promise<Array<GetUserResponseViewModel>> {
     const users: Array<UserSchema> = await this.usersRepository.find();
-    const mapped: unknown[] = [];
-    users.forEach((user) => {
-      mapped.push(
-        this.mapper.toViewModel<UserSchema, GetUserResponseViewModel>(
-          user,
-          GetUserResponseViewModel
-        )
-      );
-    });
+    const mapped = this.mapper.toViewModel<UserSchema, GetUserResponseViewModel>(
+      JSON.parse(JSON.stringify(users)),
+      GetUserResponseViewModel
+    );
 
-    return mapped as GetUserResponseViewModel[];
+    return Array.isArray(mapped) ? mapped : [mapped];
   }
 }

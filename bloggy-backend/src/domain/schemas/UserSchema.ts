@@ -1,16 +1,16 @@
-import { BaseSchema } from '@domain/common/BaseSchema';
+import { BaseAuditableSchema } from '@domain/common/BaseAuditableSchema';
 import { IEntity } from '@domain/contract/IEntity';
 import { PostSchema } from '@domain/schemas';
 
-export class UserSchema extends BaseSchema implements IEntity {
+export class UserSchema extends BaseAuditableSchema implements IEntity {
   name: string;
   email: string;
   hashedPassword: string;
   salt: string;
   refreshToken: string;
-  lastLoginDate: Date;
+  lastLoginDate?: Date;
   isFreezed: boolean;
-  posts?: Array<PostSchema>;
+  posts?: PostSchema[];
 
   constructor(
     id: string,
@@ -19,10 +19,12 @@ export class UserSchema extends BaseSchema implements IEntity {
     hashedPassword: string,
     salt: string,
     refreshToken: string,
-    lastLoginDate: Date,
     isFreezed: boolean,
     isDeleted: boolean,
-    posts?: Array<PostSchema>
+    updatedAt: Date,
+    createdAt: Date,
+    lastLoginDate?: Date,
+    posts?: PostSchema[]
   ) {
     super();
     this.id = id;
@@ -35,6 +37,8 @@ export class UserSchema extends BaseSchema implements IEntity {
     this.lastLoginDate = lastLoginDate;
     this.isFreezed = isFreezed;
     this.isDeleted = isDeleted;
+    this.updatedAt = updatedAt;
+    this.createdAt = createdAt;
   }
 
   equals(entity: IEntity): boolean {

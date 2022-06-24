@@ -1,4 +1,4 @@
-export default class ApiResponse<T> {
+export class ApiResponse<T> {
   constructor(data: T, message = '') {
     if (data !== undefined) {
       this.succeeded = true;

@@ -2,11 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AddPostRequestViewModel {
   @ApiProperty()
-  id: string;
-
+  coverPhoto: string;
   @ApiProperty()
-  name: string;
-
+  post: string;
   @ApiProperty()
-  email: string;
+  title: string;
+  @ApiProperty()
+  userId: string;
+  @ApiProperty()
+  postTags: string[];
+  @ApiProperty()
+  addedTags: string[];
 }
