@@ -7,22 +7,43 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Debug Backend",
       "skipFiles": ["<node_internals>/**"],
 
-      "args": ["${workspaceFolder}/bloggy-backend/src/main.ts"],
+      "args": ["${workspaceFolder}/src/main.ts"],
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register", "-r", "tsconfig-paths/register"],
       "sourceMaps": true,
       "env": {
         "NODE_ENV": "development"
       },
-      "envFile": "${workspaceFolder}/bloggy-backend/.env.development",
-      "cwd": "${workspaceRoot}/bloggy-backend",
+      "envFile": "${workspaceFolder}/.env.development",
+      "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
-      "protocol": "inspector",
+      "protocol": "inspector"
       // "program": "${workspaceFolder}/src/app.controller.spec.ts",
       // "preLaunchTask": "tsc: build - tsconfig.json",
       // "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run All (Dev)",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["start:dev"]
+      // "program": "${workspaceFolder}/src/app.controller.spec.ts",
+      // "preLaunchTask": "tsc: build - tsconfig.json",
+      // "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Backend",
+      "port": 9229,
+      "skipFiles": ["<node_internals>/**"],
+      "restart": true,
     }
   ]
 }

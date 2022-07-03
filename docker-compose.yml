@@ -12,15 +12,16 @@ services: #This section defines all the different containers we will create.
     # expose: # Publishes 7775 to other containers but NOT to host machine
     #   - "7775" 
     ports:
-      - "7775:5432"
+      - "5432:5432"
     networks:
       - bloggy-network
     restart: unless-stopped
     # command: -p 7775
-  bloggy_backend: 
-    container_name: bloggy_backend_container
+  bloggy_server: 
+    command: start:prod
+    container_name: bloggy_server_container
     build: 
-      context: ./bloggy-backend
+      context: ./
     environment:
       - DB_HOST=postgres_container
       - DB_PORT=5432
@@ -32,14 +33,15 @@ services: #This section defines all the different containers we will create.
       - postgres_service
     networks:
       - bloggy-network
-  bloggy_frontend: #This is the name of our Nextjs application.
-    container_name: bloggy_frontend_container
+  bloggy_client: #This is the name of our Nextjs application.
+    command: serve
+    container_name: bloggy_client_container
     build:
-      context: ./bloggy-client
+      context: ./src/presentation/ui
     ports: #This is used to map the container’s ports to the host machine.
       - "3000:3000"
     depends_on:
-      - bloggy_backend
+      - bloggy_server
     networks:
       - bloggy-network
 networks:

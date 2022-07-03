@@ -2,6 +2,7 @@
   "name": "bloggy-frontend",
   "version": "1.5.1",
   "private": true,
+  "proxy": "http://localhost:5000",
   "scripts": {
     "start": "cross-env SOCKET=true node ./scripts/next-remote-watch.js ./data",
     "dev": "next dev",
