@@ -10,7 +10,7 @@ export * from './user/queries/GetUsersQuery';
 /* #endregion */
 
 export * from './post/commands/AddPostCommand';
-// export * from './post/commands/DeletePostCommand';
-// export * from './post/commands/UpdatePostCommand';
+export * from './post/commands/DeletePostCommand';
+export * from './post/commands/UpdatePostCommand';
 export * from './post/queries/GetPostQuery';
 export * from './post/queries/GetPostsQuery';

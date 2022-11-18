@@ -8,9 +8,5 @@ export class AddPostRequestViewModel {
   @ApiProperty()
   title: string;
   @ApiProperty()
-  userId: string;
-  @ApiProperty()
-  postTags: string[];
-  @ApiProperty()
-  addedTags: string[];
+  tags: Array<{ name?: string; id?: string }>;
 }

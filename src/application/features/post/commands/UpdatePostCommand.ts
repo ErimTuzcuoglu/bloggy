@@ -1,63 +1,97 @@
 import { ICommandHandler, CommandHandler } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import crypto from 'crypto';
-import { UserSchema } from '@domain/schemas';
-import { AddUserResponseViewModel } from '@presentation/view-models';
-import { EnvironmentVariables, ErrorMessages } from '@domain/enum';
-import { AuthService } from '@application/services';
+import { InjectEntityManager } from '@nestjs/typeorm';
+import { EntityManager, InsertResult } from 'typeorm';
+import { PostSchema, TagSchema, UserSchema } from '@domain/schemas';
+import { UpdatePostResponseViewModel } from '@presentation/view-models';
+import { ErrorMessages } from '@domain/enum';
 
-export class AddUserCommand {
-  constructor(
-    public readonly name: string,
-    public readonly email: string,
-    public readonly password: string
-  ) {}
+type RequestedTagType = {
+  id?: string;
+  name?: string;
+};
+
+type UpdatePostCommandParams = {
+  postId: string;
+  coverPhoto: string;
+  post: string;
+  title: string;
+  userId: string;
+  tags: Array<RequestedTagType>;
+};
+export class UpdatePostCommand {
+  constructor(public readonly postData: UpdatePostCommandParams) {}
 }
 
-@CommandHandler(AddUserCommand)
-export class AddUserHandler implements ICommandHandler<AddUserCommand> {
+@CommandHandler(UpdatePostCommand)
+export class UpdatePostHandler implements ICommandHandler<UpdatePostCommand> {
   constructor(
-    @InjectRepository(UserSchema)
-    private usersRepository: Repository<UserSchema>,
-    private authService: AuthService
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager
   ) {}
 
-  async execute(command: AddUserCommand): Promise<AddUserResponseViewModel> {
-    const userInDB = await this.usersRepository.findOne({ where: { email: command.email } });
-    if (userInDB !== undefined) throw new Error(ErrorMessages.UserAlreadyExist);
+  async execute(command: UpdatePostCommand): Promise<UpdatePostResponseViewModel> {
+    const { coverPhoto, post, postId, tags = [], title, userId } = command.postData;
 
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hashedPassword = crypto
-      .pbkdf2Sync(command.password, salt, 1000, 64, `sha512`)
-      .toString(`hex`);
+    const result = await this.entityManager.transaction(
+      async (transactionalManager: EntityManager) => {
+        const userInDB = await transactionalManager.getRepository(UserSchema).findOne(userId);
+        if (!!!userInDB) throw new Error(ErrorMessages.UserCouldNotFound);
+        let newTags: InsertResult;
+        const addedTags = [],
+          existingTags = [];
+        tags.forEach((tag) => {
+          if (tag.name) {
+            addedTags.push({ tag: tag.name } as Partial<TagSchema>);
+          } else if (tag.id) {
+            existingTags.push(tag.id);
+          }
+        });
+        if (addedTags.length > 0) {
+          newTags = await transactionalManager
+            .createQueryBuilder()
+            .insert()
+            .into(TagSchema)
+            .values(addedTags)
+            .returning(['tag'])
+            .execute();
+        }
+        const selectedTags = await transactionalManager
+          .getRepository(TagSchema)
+          .findByIds(existingTags);
 
-    const user = await this.usersRepository.save({
-      email: command.email,
-      name: command.name,
-      salt,
-      hashedPassword,
-      refreshToken: ''
-    });
+        //TODO: Tags that not used anymore will delete here.
 
-    const accessToken = await this.authService.generateToken({ id: user.id, email: user.email });
+        let savedPost: PostSchema = await transactionalManager
+          .getRepository(PostSchema)
+          .findOne(postId);
 
-    const refreshToken = await this.authService.generateToken(
-      { id: user.id, email: user.email },
-      { secret: process.env[EnvironmentVariables.JWT_REFRESH_TOKEN_SECRET] }
+        Object.assign(savedPost, {
+          coverPhoto,
+          post,
+          title,
+          user: userInDB,
+          tags: [
+            ...selectedTags,
+            ...(Array.isArray(newTags?.generatedMaps) && newTags?.generatedMaps?.length > 0
+              ? newTags.generatedMaps
+              : [])
+          ] as TagSchema[]
+        });
+
+        savedPost = await transactionalManager.save(savedPost);
+        return savedPost;
+      }
     );
-
-    this.usersRepository.save({
-      id: user.id,
-      refreshToken
+    const mappedTags = (await result.tags).map(({ id, tag }) => {
+      return { id, tag };
     });
-
-    return new AddUserResponseViewModel({
-      email: user.email,
-      id: user.id,
-      name: user.name,
-      refreshToken: refreshToken,
-      accessToken: accessToken
+    return new UpdatePostResponseViewModel({
+      coverPhoto: coverPhoto,
+      id: result.id,
+      post: result.post,
+      tags: mappedTags,
+      title: result.title,
+      userId: result.user.id
     });
   }
 }

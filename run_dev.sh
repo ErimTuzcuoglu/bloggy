@@ -15,5 +15,5 @@ if ( nc -zv localhost 5432 2>&1 >/dev/null ); then
     -p 7775:5432
 fi
 
-yarn start:debug:server &
-yarn start:dev:client
+yarn debug:server &
+yarn dev:client

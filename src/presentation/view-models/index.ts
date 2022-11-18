@@ -16,4 +16,5 @@ export * from './post/request/AddPostRequestViewModel';
 export * from './post/request/UpdatePostRequestViewModel';
 export * from './post/response/AddPostResponseViewModel';
 export * from './post/response/GetPostResponseViewModel';
+export * from './post/response/UpdatePostResponseViewModel';
 /* #endregion */

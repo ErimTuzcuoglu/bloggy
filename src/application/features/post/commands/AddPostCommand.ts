@@ -4,15 +4,18 @@ import { EntityManager } from 'typeorm';
 import { PostSchema, TagSchema, UserSchema } from '@domain/schemas';
 import { AddPostResponseViewModel } from '@presentation/view-models';
 import { ErrorMessages } from '@domain/enum';
-import { Tag } from '@domain/entities';
+
+type RequestedTagType = {
+  id?: string;
+  name?: string;
+};
 
 type AddPostCommandParams = {
   coverPhoto: string;
   post: string;
   title: string;
   userId: string;
-  postTags: string[];
-  addedTags: string[];
+  tags: Array<RequestedTagType>;
 };
 
 export class AddPostCommand {
@@ -27,26 +30,34 @@ export class AddPostHandler implements ICommandHandler<AddPostCommand> {
   ) {}
 
   async execute(command: AddPostCommand): Promise<AddPostResponseViewModel> {
-    const { addedTags = [], coverPhoto, post, postTags = [], title, userId } = command.postData;
+    const { coverPhoto, post, tags = [], title, userId } = command.postData;
 
     const result = await this.entityManager.transaction(
       async (transactionalManager: EntityManager) => {
         const userInDB = await transactionalManager.getRepository(UserSchema).findOne(userId);
         if (!!!userInDB) throw new Error(ErrorMessages.UserCouldNotFound);
         let newTags;
+        const addedTags = [],
+          existingTags = [];
+        tags.forEach((tag) => {
+          if (tag.name) {
+            addedTags.push({ tag: tag.name } as Partial<TagSchema>);
+          } else if (tag.id) {
+            existingTags.push(tag.id);
+          }
+        });
         if (addedTags.length > 0) {
-          const mapped = addedTags.map((tag) => ({ tag } as Partial<TagSchema>));
           newTags = await transactionalManager
             .createQueryBuilder()
             .insert()
             .into(TagSchema)
-            .values(mapped)
+            .values(addedTags)
             .returning(['tag'])
             .execute();
         }
         const selectedTags = await transactionalManager
           .getRepository(TagSchema)
-          .findByIds(postTags);
+          .findByIds(existingTags);
 
         //CLUE: If you want to insert into related tables, create a new entity instance first.
         let savedPost = await transactionalManager.getRepository(PostSchema).create({

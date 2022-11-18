@@ -1,12 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GetUsersQuery } from '@application/features/user/queries/GetUsersQuery';
+import { Request } from 'express';
 import { BaseController } from '@presentation/common';
 import { AllowUnauthorizedRequest } from '@presentation/decorator';
 import { AuthService } from '@application/services';
-import { AddPostCommand, GetPostQuery, GetPostsQuery } from '@application/features';
-import { AddPostRequestViewModel, AddPostResponseViewModel } from '@presentation/view-models';
+import {
+  AddPostCommand,
+  DeletePostCommand,
+  GetPostQuery,
+  GetPostsQuery,
+  UpdatePostCommand
+} from '@application/features';
+import {
+  AddPostRequestViewModel,
+  AddPostResponseViewModel,
+  UpdatePostRequestViewModel
+} from '@presentation/view-models';
 
 @ApiTags('Post')
 @Controller('Post')
@@ -32,26 +42,45 @@ export class PostController extends BaseController {
   }
 
   @Post()
-  @AllowUnauthorizedRequest()
   async addPost(
+    @Req() request: Request,
     @Body() addPostRequestViewModel: AddPostRequestViewModel
   ): Promise<AddPostResponseViewModel> {
-    const { addedTags, coverPhoto, post, postTags, title, userId } = addPostRequestViewModel;
+    const { coverPhoto, post, tags, title } = addPostRequestViewModel;
     const response = await this.commandBus.execute(
-      new AddPostCommand({ coverPhoto, post, title, userId, postTags, addedTags })
+      new AddPostCommand({
+        coverPhoto,
+        post,
+        title,
+        userId: this.getUserId(request),
+        tags
+      })
     );
     return response;
   }
 
   @ApiBearerAuth('jwt')
   @Put()
-  async updatePost(@Param('id') id: Promise<string>) {
-    return await this.queryBus.execute(new GetUsersQuery());
+  async updatePost(
+    @Req() request: Request,
+    @Body() updatePostRequestViewModel: UpdatePostRequestViewModel
+  ) {
+    const { coverPhoto, post, postId, tags, title } = updatePostRequestViewModel;
+    return await this.commandBus.execute(
+      new UpdatePostCommand({
+        coverPhoto,
+        post,
+        postId,
+        tags,
+        title,
+        userId: this.getUserId(request)
+      })
+    );
   }
 
   @ApiBearerAuth('jwt')
   @Delete()
-  async deletePost(@Param('id') id: Promise<string>) {
-    return await this.queryBus.execute(new GetUsersQuery());
+  async deletePost(@Req() request: Request, @Param('id') id: string) {
+    return await this.commandBus.execute(new DeletePostCommand(this.getUserId(request), id));
   }
 }
